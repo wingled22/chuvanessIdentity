@@ -25,4 +25,5 @@ namespace sampleApp.Identity
     public class ApplicationRole : IdentityRole<int>
     {
     }
+    
 }
