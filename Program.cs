@@ -1,4 +1,13 @@
+using System.Configuration;
+using Microsoft.EntityFrameworkCore;
+using sampleApp.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
+
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
+    options.UseMySql("server=localhost;database=sampleapp;user=root;password=;", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.28-mariadb")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
