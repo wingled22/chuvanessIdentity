@@ -1,18 +1,15 @@
 using System.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using sampleApp.Entities;
 using sampleApp.Identity;
 using AutoMapper;
 using sampleApp.Profiles;
+using sampleApp.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-
 builder.Services.AddDbContext<SampleappContext>(options =>
-    options.UseMySql("server=localhost;database=sampleapp;user=root;password=;", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.28-mariadb")));
+    options.UseMySql("server=localhost;database=sampleapp;user=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("10.4.28-mariadb")));
 
 
 builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
@@ -30,10 +27,10 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(option =>{
     option.Password.RequireDigit = false;
 }).AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
-builder.Services.ConfigureApplicationCookie(option => {
-    option.LoginPath = "/Account/Login";
-    option.AccessDeniedPath = "/Account/Login";
-});
+// builder.Services.ConfigureApplicationCookie(option => {
+//     option.LoginPath = "/Account/Login";
+//     option.AccessDeniedPath = "/Account/Login";
+// });
 
 
 var mapperConfig = new MapperConfiguration(cfg =>

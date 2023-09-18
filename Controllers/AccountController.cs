@@ -39,16 +39,15 @@ namespace sampleApp.Controllers
             {
                 System.Security.Claims.ClaimsPrincipal currentUser = this.User;
 
+                if (currentUser.IsInRole("Admin"))
+                {
+                    _logger.LogInformation("Logged in usertype : ADMIN");
+
+                    // return RedirectToAction("Index", "Page", new { area = "Admin" });
+                }
+
                 return RedirectToAction("Index", "Authed");
-                // if (currentUser.IsInRole("Admin"))
-                // {
-                //     _logger.LogInformation("Logged in usertype : ADMIN");
-
-                //     return RedirectToAction("Index", "Page", new { area = "Admin" });
-                // }
-                
             }
-
             return View();
         }
 
@@ -68,16 +67,10 @@ namespace sampleApp.Controllers
                     };
                     // Console.WriteLine($"Email: {user.Email}");
                     // Console.WriteLine($"Username: {user.UserName}");
-
                     var result = await _usrMngr.CreateAsync(user, registration.Password);
-
                     if (result.Succeeded)
                     {
-                        // if (user.UserType == "Student")
-                        //     _usrMngr.AddToRoleAsync(user, "Student").Wait();
-                        // else
-                        //     _usrMngr.AddToRoleAsync(user, "Admin").Wait();
-
+                        _usrMngr.AddToRoleAsync(user, "Admin").Wait();
                         return RedirectToAction("Login", "Account");
                     }
                     else
@@ -88,12 +81,9 @@ namespace sampleApp.Controllers
                                 ModelState.AddModelError("DuplicateUserName", "Username already taken");
                             if (item.Code == "DuplicateEmail")
                                 ModelState.AddModelError("DuplicateEmail", "Email already Registered");
-
                         }
                         View("Index",registration);
                     }
-
-
                 }
                 return View("Index",registration);
             }
@@ -103,15 +93,19 @@ namespace sampleApp.Controllers
             }
         }
 
+
         [HttpGet]
-        public ActionResult Login()
+        public ActionResult Login(string ReturnUrl = null)
         {
-            return View();
+            if (!User.Identity.IsAuthenticated)
+                return View();
+
+            return RedirectToAction("Index", "Authed");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LoginViewModel login)
+        public async Task<ActionResult> Login(LoginViewModel login, string Returnurl = null)
         {
             if (ModelState.IsValid)
             {
@@ -123,28 +117,7 @@ namespace sampleApp.Controllers
                     var result = await _signInMngr.PasswordSignInAsync(appUser, login.Password, false, false);
                     if (result.Succeeded)
                     {
-
-                        if (User.Identity.IsAuthenticated)
-                            _logger.LogInformation("User logged in.");
-                        else
-                            _logger.LogInformation("User not logged in.");
-                        
-                        // _logger.LogInformation("User logged in.");
-                        // _logger.LogInformation(user.UserType);
-                        // if (user.UserType == "Admin")
-                        // {
-                        //     return RedirectToAction("Index", "Page", new { area = "Admin" });
-                        // }
-                        // if (user.UserType == "Student" || user.UserType == "College" || user.UserType == "Junior High School" || user.UserType == "Senior High School")
-                        // {
-                        //     return RedirectToAction("Index", "StudentSearch", new { area = "Student" });
-                        // }
-                        // if (user.UserType == "Teacher")
-                        // {
-                        //     return RedirectToAction("Index", "TeacherSearch", new { area = "Teacher" });
-                        // }
                         return RedirectToAction("Index", "Authed");
-                        
                     }
                     else
                     {
